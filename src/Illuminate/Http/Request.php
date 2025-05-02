@@ -5,6 +5,7 @@ namespace Illuminate\Http;
 use ArrayAccess;
 use Closure;
 use Illuminate\Contracts\Support\Arrayable;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Session\SymfonySessionDecorator;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
@@ -627,9 +628,11 @@ class Request extends SymfonyRequest implements Arrayable, ArrayAccess
     /**
      * Get the route handling the request.
      *
-     * @param  string|null  $param
+     * @template TModel of Model
+     *
+     * @param  string|null|class-string<TModel>  $param
      * @param  mixed  $default
-     * @return \Illuminate\Routing\Route|object|string|null
+     * @return ($param is class-string<TModel> ? TModel|null : ($param is null ? \Illuminate\Routing\Route : object|string|null))
      */
     public function route($param = null, $default = null)
     {
@@ -637,6 +640,10 @@ class Request extends SymfonyRequest implements Arrayable, ArrayAccess
 
         if (is_null($route) || is_null($param)) {
             return $route;
+        }
+
+        if (class_exists($param)) {
+            return $route->parameter(strtolower(class_basename($param)), $default);
         }
 
         return $route->parameter($param, $default);

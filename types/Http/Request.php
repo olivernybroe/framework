@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 
 use function PHPStan\Testing\assertType;
@@ -14,3 +15,12 @@ $request = Request::create('/', 'GET', [
 ]);
 
 assertType('TestEnum|null', $request->enum('key', TestEnum::class));
+
+class Example extends Model
+{
+
+}
+
+assertType('Illuminate\Routing\Route', $request->route());
+assertType('object|string|null', $request->route('key'));
+assertType('Example|null', $request->route(Example::class));
